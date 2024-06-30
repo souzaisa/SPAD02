@@ -1,7 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client'
 
-import { booksQuery } from './src/bookQuery.js';
+import { selectQuery } from './src/bookQuery.js';
 
 const app = express();
 const port = 8080;
@@ -11,42 +11,17 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', async (req, res) => {
     try {
-        const obj = [{
-            tableName: 'livro',
-            isbn: '9781649374042',
-            atributes: { titulo: true, autor: true },
-            filters: [{
-                autor: {
-                    equals: 'Agatha Christie'
-                }
-            },
-            {
-                isbn: {
-                    equals: '9786585208109'
-                }
-            }]
-        }
-        // ,
-        // {
-        //     tableName: 'review',
-        //     atributes: { autor: true, sumario: true }
-        // },
-        // {
-        //     tableName: 'livros_da_lista'
-        // }
-        ]
-
         const prisma = new PrismaClient();
-        const book = await booksQuery(obj, prisma);
+        const response = await selectQuery(req, prisma);
         await prisma.$disconnect().catch(async (e) => {
             console.error(e)
             await prisma.$disconnect()
             process.exit(1)
         });
 
-        res.send(book);
-    } catch (erro) {
-        console.log(erro);
+        res.send(response);
+    } catch (error) {
+        console.log(error);
     }
 
 });
